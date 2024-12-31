@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
@@ -15,6 +15,8 @@ const ShopDetails = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [isFloorPlanOpen, setIsFloorPlanOpen] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchPropertyData = async () => {
@@ -43,12 +45,12 @@ const ShopDetails = () => {
             typeof property.projectOwner === 'string'
               ? doc(db, 'projectOwners', property.projectOwner)
               : property.projectOwner;
-  
+
           const ownerSnap = await getDoc(ownerRef);
-  
+
           if (ownerSnap.exists()) {
             const ownerData = ownerSnap.data();
-            setProjectOwner({ id: ownerSnap.id, ...ownerData }); // Add the id
+            setProjectOwner({ id: ownerSnap.id, ...ownerData });
           } else {
             console.error('No such project owner document!');
           }
@@ -57,15 +59,33 @@ const ShopDetails = () => {
         }
       }
     };
-  
+
     fetchProjectOwner();
   }, [property]);
-  
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const reviewsQuery = query(
+          collection(db, 'reviews'),
+          where('proprety', '==', doc(db, 'properties', id))
+        );
+        const reviewsSnap = await getDocs(reviewsQuery);
+        const reviewsData = reviewsSnap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setReviews(reviewsData);
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+      }
+    };
+
+    fetchReviews();
+  }, [id]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    e.persist(); // Persist the event to avoid React nullifying it
-  
     const formData = new FormData(e.target);
     const messageData = {
       name: formData.get('yourname'),
@@ -76,7 +96,7 @@ const ShopDetails = () => {
       timestamp: serverTimestamp(),
       agree: true,
     };
-  
+
     try {
       await addDoc(collection(db, 'Messages'), messageData);
       Swal.fire({
@@ -85,7 +105,7 @@ const ShopDetails = () => {
         icon: 'success',
         confirmButtonText: 'OK',
       });
-      e.target.reset(); // Reset the form after submission
+      e.target.reset();
     } catch (error) {
       Swal.fire({
         title: 'Error!',
@@ -96,7 +116,12 @@ const ShopDetails = () => {
       console.error('Error sending message:', error);
     }
   };
-  
+
+  const openDialog = (e) => {
+    e.preventDefault(); // Prevent navigation
+    setIsDialogOpen(true);
+  };
+  const closeDialog = () => setIsDialogOpen(false);
 
   if (!property) {
     return <div>Loading...</div>;
@@ -285,6 +310,166 @@ const ShopDetails = () => {
                   Your browser does not support the video tag.
                 </video>
               </div>
+              <br></br>
+              {/* Reviews Section */}
+<div className="ltn__shop-details-tab-content-inner--- ltn__shop-details-tab-inner-2 ltn__product-details-review-inner mb-60">
+  <h4 className="title-2">Customer Reviews</h4>
+  <div className="product-ratting">
+    <ul>
+      {Array.from({ length: 5 }, (_, i) => (
+        <li key={i} onClick={openDialog}>
+          <a href="#">
+            <i className={`fas fa-star${i < 4 ? '' : '-half-alt'}`} />
+          </a>
+        </li>
+      ))}
+      <li className="review-total">
+        <a href="#" onClick={openDialog}>
+          ({reviews.length} Reviews)
+        </a>
+      </li>
+    </ul>
+  </div>
+  <hr />
+  <div className="ltn__comment-area mb-30">
+    <div className="ltn__comment-inner">
+      <ul>
+        {reviews.map((review) => (
+          <li key={review.id} onClick={openDialog}>
+            <div className="ltn__comment-item clearfix">
+              <div className="ltn__commenter-img">
+                <img src={review.userPicture} alt={review.userName} />
+              </div>
+              <div className="ltn__commenter-comment">
+                <h6>
+                  <a href="#">{review.userName}</a>
+                </h6>
+                <div className="product-ratting">
+                  <ul>
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <li key={i}>
+                        <a href="#">
+                          <i
+                            className={`fas fa-star${i < review.rate ? '' : '-half-alt'}`}
+                          />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <p>{review.comment}</p>
+                <span className="ltn__comment-reply-btn">
+                  {new Date(review.date.seconds * 1000).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  {/* Dialog */}
+  {isDialogOpen && (
+  <div className="custom-dialog">
+    <div className="dialog-content">
+      {/* Close Button */}
+      <button className="close-btn" onClick={() => setIsDialogOpen(false)}>
+        &times;
+      </button>
+      <h2>Download Heart of Carthage Mobile Application</h2>
+      <p>
+        Join our family and feel free to submit your reviews on properties and
+        testimonials.
+      </p>
+      <div className="store-links">
+        <a
+          href="https://www.apple.com/app-store/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/831/831378.png"
+            alt="App Store"
+          />
+        </a>
+        <a
+          href="https://play.google.com/store"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img
+            src="https://cdn-icons-png.flaticon.com/256/1077/1077105.png"
+            alt="Play Store"
+          />
+        </a>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* Styles */}
+<style jsx>{`
+  .custom-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .dialog-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    animation: slideIn 0.3s ease-in-out;
+    position: relative;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .store-links {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+
+  .store-links img {
+    width: 100px;
+    height: auto;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+`}</style>
+
+</div>
+
             </div>
           </div>
           {/* Right Section */}

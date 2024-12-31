@@ -78,7 +78,7 @@ class Footer_v1 extends Component {
 				                    <i className="icon-mail" />
 				                  </div>
 				                  <div className="footer-address-info">
-				                    <p><a href="mailto:ontact@heart-carthage-dubai.com">ontact@heart-carthage-dubai.com</a></p>
+				                    <p><a href="mailto:Contact@heart-carthage-dubai.com">Contact@heart-carthage-dubai.com</a></p>
 				                  </div>
 				                </li>
 				              </ul>
@@ -95,8 +95,6 @@ class Footer_v1 extends Component {
 				              <ul>
 				                <li><Link to="/about">About Us</Link></li>
 				                <li><Link to="/contact">Contact us</Link></li>
-								<li><Link to="/faq">FAQ</Link></li>
-
 				              </ul>
 				            </div>
 				          </div>
@@ -109,23 +107,11 @@ class Footer_v1 extends Component {
 							  <li><Link to="/OffPlan">Off Plan</Link></li>
 				                <li><Link to="/ReadyToMove">Buy</Link></li>
 				                <li><Link to="/ReadyToMove">Rent</Link></li>
-				                <li><Link to="/termsConditions">Terms &amp; Conditions</Link></li>
 				              </ul>
 				            </div>
 				          </div>
 				        </div>
-				        <div className="col-xl-2 col-md-6 col-sm-6 col-12">
-				          <div className="footer-widget footer-menu-widget clearfix">
-				            <h4 className="footer-title">Customer Care</h4>
-				            <div className="footer-menu go-top">
-				              <ul>
-				                <li><Link to="/wishlist">Wish List</Link></li>
-				                <li><Link to="/faq">FAQ</Link></li>
-				                <li><Link to="/contact">Contact us</Link></li>
-				              </ul>
-				            </div>
-				          </div>
-				        </div>
+				       
 				        <div className="col-xl-3 col-md-6 col-sm-12 col-12">
 				          <div className="footer-widget footer-newsletter-widget">
 				            <h4 className="footer-title">Newsletter</h4>

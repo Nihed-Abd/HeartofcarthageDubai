@@ -57,8 +57,8 @@ class FeaturedItemV1 extends Component {
             <div className="row">
               <div className="col-lg-12">
                 <div className="section-title-area ltn__section-title-2--- text-center">
-                  <h6 className="section-subtitle section-subtitle-2 ltn__secondary-color">Properties</h6>
-                  <h1 className="section-title">Featured Listings</h1>
+                  <h6 className="section-subtitle section-subtitle-2 ltn__secondary-color">New</h6>
+                  <h1 className="section-title">Latest Properties</h1>
                 </div>
               </div>
             </div>
@@ -113,15 +113,11 @@ class FeaturedItemV1 extends Component {
                         </div>
                         <h2 className="product-title go-top">
                           <Link to={`/property/${property.id}`}>
-                            {property.title?.length > 20
-                              ? `${property.title.substring(0, 20)}...`
-                              : property.title || 'Untitled'}
+                            {this.truncateText(property.title || 'Untitled', 20)}
                           </Link>
                         </h2>
                         <div className="product-description">
-                          <p>
-                            {this.truncateText(property.description || 'No description available', 100)}
-                          </p>
+                          <p>{this.truncateText(property.description || 'No description available', 15)}</p>
                         </div>
                         <ul className="ltn__list-item-2 ltn__list-item-2-before">
                           <li>
@@ -148,7 +144,7 @@ class FeaturedItemV1 extends Component {
                         {property.ownerDetails && (
                           <div className="real-estate-agent go-top">
                             <div className="agent-img">
-                              <Link to={`/project-owner/${property.ownerDetails.id}`}>
+                              <Link to={`/projectOwner/${property.ownerDetails.id}`}>
                                 <img
                                   src={property.ownerDetails.logo || `${publicUrl}/assets/img/default-owner.jpg`}
                                   alt={property.ownerDetails.name || 'Owner'}
@@ -157,7 +153,7 @@ class FeaturedItemV1 extends Component {
                             </div>
                             <div className="agent-brief">
                               <h6>
-                                <Link to={`/project-owner/${property.ownerDetails.id}`}>
+                                <Link to={`/projectOwner/${property.ownerDetails.id}`}>
                                   {property.ownerDetails.name || 'Unknown Owner'}
                                 </Link>
                               </h6>

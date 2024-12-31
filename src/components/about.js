@@ -15,7 +15,7 @@ const About_v1 = () => {
         <PageHeader headertitle="About Us" />
         <AboutV1 />
         <Features  customClass="ltn__feature-area section-bg-1 pt-120 pb-90 mb-120---"/>
-        <Team />
+        <Testimonial />
        <CallToActionV1 />
         <Footer />
     </div>

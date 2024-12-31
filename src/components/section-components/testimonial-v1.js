@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { collection, query, getDocs, getDoc, doc } from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
+import React, { Component } from "react";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
 
 class Testimonial extends Component {
   state = {
@@ -13,63 +13,47 @@ class Testimonial extends Component {
 
   fetchTestimonials = async () => {
     try {
-      const testimonialsRef = collection(db, 'testimonials');
-      const testimonialsSnapshot = await getDocs(testimonialsRef);
-  
-      const fetchedTestimonials = [];
-  
-      for (const testimonialDoc of testimonialsSnapshot.docs) {
-        const testimonialData = testimonialDoc.data();
-        testimonialData.id = testimonialDoc.id;
-  
-        // Debug: Log the testimonial data
-        console.log('Testimonial Data:', testimonialData);
-  
-        // Validate `user` field
-        if (typeof testimonialData.user === 'string') {
-          const userRef = doc(db, testimonialData.user);
-  
-          try {
-            const userSnapshot = await getDoc(userRef);
-            if (userSnapshot.exists()) {
-              testimonialData.userDetails = { id: userSnapshot.id, ...userSnapshot.data() };
-            } else {
-              console.warn(`User document not found for reference: ${testimonialData.user}`);
-            }
-          } catch (userError) {
-            console.error(`Error fetching user details for: ${testimonialData.user}`, userError);
-          }
-        } else {
-          console.warn(`Invalid user field in testimonial: ${testimonialDoc.id}`, testimonialData.user);
-        }
-  
-        fetchedTestimonials.push(testimonialData);
-      }
-  
+      const testimonialsRef = collection(db, "testimonials");
+      const testimonialsQuery = query(testimonialsRef, orderBy("date", "desc"), limit(6)); // Fetch latest 6 testimonials
+      const testimonialsSnapshot = await getDocs(testimonialsQuery);
+
+      const fetchedTestimonials = testimonialsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
       this.setState({ testimonials: fetchedTestimonials });
     } catch (error) {
-      console.error('Error fetching testimonials:', error);
+      console.error("Error fetching testimonials:", error);
     }
   };
-  
 
   formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    if (!timestamp) return "Date not available";
+    const date = new Date(timestamp.seconds * 1000); // Convert seconds to milliseconds
+    return date.toLocaleString("fr-FR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
+  };
+
+  truncateMessage = (message, maxWords = 20) => {
+    const words = message.split(" ");
+    return words.length > maxWords ? words.slice(0, maxWords).join(" ") + "..." : message;
   };
 
   render() {
     const { testimonials } = this.state;
-    const publicUrl = process.env.PUBLIC_URL + '/';
+    const publicUrl = process.env.PUBLIC_URL + "/";
 
     return (
-      <div className="ltn__testimonial-area section-bg-1--- bg-image-top pt-115 pb-70" style={{ backgroundImage: `url(${publicUrl}assets/img/bg/20.jpg)` }}>
+      <div
+        className="ltn__testimonial-area section-bg-1--- bg-image-top pt-115 pb-70"
+        style={{ backgroundImage: `url(${publicUrl}assets/img/bg/20.jpg)` }}
+      >
         <div className="container">
           <div className="row">
             <div className="col-lg-12">
@@ -86,21 +70,26 @@ class Testimonial extends Component {
                   <div className="ltn__testimonial-item ltn__testimonial-item-7">
                     <div className="ltn__testimoni-info">
                       <p>
-                        <i className="flaticon-left-quote-1" /> {testimonial.message || 'No feedback provided'}
+                        <i className="flaticon-left-quote-1" />{" "}
+                        {this.truncateMessage(testimonial.message || "No feedback provided", 20)}
                       </p>
                       <div className="ltn__testimoni-info-inner">
                         <div className="ltn__testimoni-img">
                           <img
-                            src={testimonial.userDetails?.profilePicture || `${publicUrl}assets/img/default-user.jpg`}
-                            alt={testimonial.userDetails?.name || 'User'}
-                            style={{ width: '75px', height: '75px', borderRadius: '50%', objectFit: 'cover' }}
+                            src={testimonial.picture || `${publicUrl}assets/img/default-user.jpg`}
+                            alt={testimonial.userName || "User"}
+                            style={{
+                              width: "75px",
+                              height: "75px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                            }}
                           />
                         </div>
                         <div className="ltn__testimoni-name-designation">
-                          <h5>{testimonial.userDetails?.name || 'Anonymous'}</h5>
-                          <label>{testimonial.userDetails?.designation || 'Client'}</label>
+                          <h5>{testimonial.userName || "Anonymous"}</h5>
                           <small className="d-block mt-1 text-muted">
-                            {testimonial.timestamp ? this.formatDate(testimonial.timestamp) : ''}
+                            {this.formatDate(testimonial.date)}
                           </small>
                         </div>
                       </div>
@@ -109,7 +98,7 @@ class Testimonial extends Component {
                 </div>
               ))
             ) : (
-              <p>No testimonials found.</p>
+              <p className="text-center">No testimonials found.</p>
             )}
           </div>
         </div>

@@ -13,7 +13,7 @@ class Page_header extends Component {
 
         return (
 
-		<div className={"ltn__breadcrumb-area text-left bg-overlay-white-30 bg-image "+CustomClass} data-bs-bg={publicUrl+"assets/img/CoverContact2.jpg"}>
+		<div className={"ltn__breadcrumb-area text-left  bg-image "+CustomClass} data-bs-bg={publicUrl+"assets/img/cover.jpg"}>
 			<div className="container">
 				<div className="row">
 				<div className="col-lg-12">

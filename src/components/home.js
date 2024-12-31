@@ -9,12 +9,13 @@ import CallToActionV1 from './section-components/call-to-action-v1';
 import Footer from './global-components/footer';
 import Aboutv1 from './section-components/about-v1';
 import Testimonial from './section-components/testimonial-v1';
+import DownloadApp from './section-components/downloadApp';
 const Home = () => {
     return <div>
         <Navbar />
         <Banner />
-        <SearchForm />
         <Aboutv1 />
+        <DownloadApp />
         <Features customClass="ltn__feature-area section-bg-1--- pt-115 pb-90 mb-120---"/>
         <FeaturedItem />
         <Testimonial />

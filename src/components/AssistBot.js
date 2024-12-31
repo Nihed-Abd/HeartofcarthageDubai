@@ -257,11 +257,9 @@ const AssistBot = () => {
       style={{
         display: "flex",
         justifyContent: message.sender === "bot" ? "flex-start" : "flex-end",
-        alignItems: "center",
         margin: "10px 0",
       }}
     >
-      {message.sender === "bot" && <FaRobot style={{ marginRight: "10px" }} />}
       <div
         style={{
           backgroundColor: message.sender === "bot" ? "#133236" : "#d3d3d3",
@@ -269,12 +267,10 @@ const AssistBot = () => {
           padding: "10px",
           borderRadius: "10px",
           maxWidth: "70%",
-          animation: message.sender === "bot" ? "slideIn 0.5s ease-in-out" : "none",
         }}
       >
         {message.text}
       </div>
-      {message.sender === "user" && <FaUser style={{ marginLeft: "10px" }} />}
     </div>
   );
 
@@ -284,7 +280,12 @@ const AssistBot = () => {
         <Link
           key={property.id}
           to={`/property/${property.id}`}
-          onClick={resetConversation}
+          onClick={() => {
+            setIsOpen(false);
+            setTimeout(() => {
+              window.location.reload();
+            }, 0);
+          }}
           style={{
             textDecoration: "none",
             color: "inherit",
@@ -340,32 +341,77 @@ const AssistBot = () => {
   return (
     <div>
       {/* Chatbot Toggle */}
-      <div style={{ position: "fixed", bottom: "30px", right: "30px", zIndex: 1000 }}>
-        <button
-          onClick={toggleBot}
-          style={{
-            backgroundColor: "#133236",
-            color: "white",
-            border: "none",
-            borderRadius: "50%",
-            width: "70px",
-            height: "70px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
-          }}
-        >
-          <FaRobot size={28} />
-        </button>
-      </div>
+      <div style={{ position: "fixed", bottom: "125px", right: "30px", zIndex: 1000 }}>
+  {/* Bot Toggle with Message */}
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      position: "relative",
+    }}
+  >
+    {/* Message */}
+    <div
+      style={{
+        backgroundColor: "#ffffff",
+        color: "#133236",
+        padding: "10px 15px",
+        borderRadius: "20px",
+        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
+        fontSize: "14px",
+        fontWeight: "bold",
+        position: "absolute",
+        right: "80px", // Adjusted position to appear behind the toggle button
+        whiteSpace: "nowrap",
+      }}
+    >
+      How can I assist you?
+    </div>
+
+    {/* Toggle Button */}
+    <button
+      onClick={toggleBot}
+      style={{
+        backgroundColor: "#133236",
+        color: "white",
+        border: "none",
+        borderRadius: "50%",
+        width: "70px",
+        height: "70px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.3)",
+        animation: "pulse 1.5s infinite",
+      }}
+    >
+      <FaRobot size={28} />
+    </button>
+  </div>
+
+  {/* Styles */}
+  <style jsx>{`
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+  `}</style>
+</div>
+
 
       {/* Chat Dialog */}
       {isOpen && (
         <div
           style={{
             position: "fixed",
-            top: "50%",
+            top: "55%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             backgroundColor: "white",
@@ -381,38 +427,48 @@ const AssistBot = () => {
         >
           {/* Header */}
           <div
-            style={{
-              backgroundColor: "#133236",
-              color: "white",
-              padding: "15px",
-              borderTopLeftRadius: "10px",
-              borderTopRightRadius: "10px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <img src={logo} alt="Heart of Carthage" style={{ height: "30px", marginRight: "10px" }} />
-            <span style={{ fontWeight: "bold" }}>Heart of Carthage</span>
-            <div style={{ display: "flex", gap: "10px" }}>
-              <button
-                onClick={resetConversation}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "white",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                }}
-              >
-                <FaRedo />
-              </button>
-              <FaTimes
-                onClick={toggleBot}
-                style={{ cursor: "pointer", fontSize: "18px" }}
-              />
-            </div>
-          </div>
+      style={{
+        backgroundColor: "#133236",
+        color: "white",
+        padding: "15px",
+        borderTopLeftRadius: "10px",
+        borderTopRightRadius: "10px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <img src={logo} alt="Heart of Carthage" style={{ height: "50px", marginRight: "10px" }} />
+      <span style={{ fontWeight: "bold" }}>Heart of Carthage</span>
+      <div style={{ display: "flex", gap: "10px" }}>
+        <button
+          onClick={resetConversation}
+          style={{
+            background: "none",
+            border: "none",
+            color: "white",
+            cursor: "pointer",
+            fontSize: "18px",
+            padding: "5px",
+          }}
+        >
+          <FaRedo size={24} />
+        </button>
+        <button
+          onClick={toggleBot}
+          style={{
+            background: "none",
+            border: "none",
+            color: "white",
+            cursor: "pointer",
+            fontSize: "18px",
+            padding: "5px",
+          }}
+        >
+          <FaTimes size={24} />
+        </button>
+      </div>
+    </div>
 
           {/* Messages */}
           <div
@@ -427,14 +483,7 @@ const AssistBot = () => {
             {conversation.map(renderMessage)}
 
             {isFetching && (
-              <div style={{ color: "#133236", fontStyle: "italic" }}>
-                <div className="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-                {responses[language].fetching}
-              </div>
+              <div style={{ color: "#133236", fontStyle: "italic" }}>{responses[language].fetching}</div>
             )}
 
             {properties.length > 0 && renderProperties()}
